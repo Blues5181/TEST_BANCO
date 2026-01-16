@@ -1,0 +1,108 @@
+
+services:
+  postgres-cliente:
+    image: postgres:15-alpine
+    container_name: postgres-cliente
+    environment:
+      POSTGRES_DB: clientedb
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      TZ: America/Guatemala
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres-cliente-data:/var/lib/postgresql/data
+    networks:
+      - bank-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  postgres-cuenta:
+    image: postgres:15-alpine
+    container_name: postgres-cuenta
+    environment:
+      POSTGRES_DB: cuentadb
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      TZ: America/Guatemala
+    ports:
+      - "5434:5432"
+    volumes:
+      - postgres-cuenta-data:/var/lib/postgresql/data
+    networks:
+      - bank-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+      TZ: America/Guatemala
+    networks:
+      - bank-network
+
+  ms-clientes:
+    build:
+      context: ./client
+      dockerfile: Dockerfile
+    container_name: ms-clientes
+    ports:
+      - "8001:8001"
+    environment:
+      SPRING_RABBITMQ_HOST: rabbitmq
+      SPRING_RABBITMQ_PORT: 5672
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres-cliente:5432/clientedb
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: postgres
+      SPRING_JPA_DDL_AUTO: update
+      TZ: America/Guatemala
+    depends_on:
+      postgres-cliente:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_started
+    networks:
+      - bank-network
+
+  ms-cuentas:
+    build:
+      context: ./account
+      dockerfile: Dockerfile
+    container_name: ms-cuentas
+    ports:
+      - "8000:8000"
+    environment:
+      SPRING_RABBITMQ_HOST: rabbitmq
+      SPRING_RABBITMQ_PORT: 5672
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres-cuenta:5432/cuentadb
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: postgres
+      SPRING_JPA_DDL_AUTO: update
+      TZ: America/Guatemala
+    depends_on:
+      postgres-cuenta:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_started
+    networks:
+      - bank-network
+
+volumes:
+  postgres-cliente-data:
+  postgres-cuenta-data:
+
+networks:
+  bank-network:
+    driver: bridge
