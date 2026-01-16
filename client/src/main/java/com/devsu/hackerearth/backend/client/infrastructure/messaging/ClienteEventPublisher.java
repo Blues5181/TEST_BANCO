@@ -32,8 +32,7 @@ public class ClienteEventPublisher {
 
     public void publicarClienteActualizado(Long clienteId, String nombre) {
 
-        String mensaje = String.format("{\"clienteId\":%d,\"nombre\":\"%s\",\"evento\":\"CLIENTE_ACTUALIZADO\"}",
-                clienteId,
+        String mensaje = String.format("{\"clienteId\":%d,\"nombre\":\"%s\",\"evento\":\"CLIENTE_ACTUALIZADO\"}", clienteId,
                 nombre);
 
         logger.info("Publicando evento CLIENTE_ACTUALIZADO para cliente ID: {}, nombre: {}", clienteId, nombre);

@@ -38,7 +38,7 @@ public class ReporteService {
 
         List<Cuenta> cuentas = cuentaRepository.findByClienteId(clienteId);
 
-        List<Transaccion> transacciones = transaccionRepository.findByClienteIdAndFechaBetween(clienteId, inicio, fin);
+        List<Transaccion> transacciones = transaccionRepository.findByCuentaClienteIdAndFechaBetween(clienteId, inicio, fin);
 
         Map<String, Object> reporte = new HashMap<>();
 

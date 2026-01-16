@@ -60,7 +60,7 @@ public class sampleTest {
 		Cuenta cuentaCreada = cuentaService.crear(cuentaPrueba);
 
 		assertNotNull(cuentaCreada.getCuentaId());
-		assertEquals("123434343", cuentaCreada);
+		assertEquals("123434343", cuentaCreada.getNumero());
 		assertEquals(new BigDecimal(1000.00), cuentaCreada.getSaldoDisponible());
 	}
 
@@ -146,6 +146,7 @@ public class sampleTest {
 		deposito.setTipo("DEPOSITO");
 		deposito.setValor(new BigDecimal(200.00));
 		deposito.setCuenta(cuentaCreada);
+		transaccionService.crear(deposito);
 
 		Transaccion retiro = new Transaccion();
 

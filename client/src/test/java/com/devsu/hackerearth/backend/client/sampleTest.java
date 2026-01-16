@@ -41,6 +41,7 @@ public class sampleTest {
         clientePrueba.setDireccion("Ciudad");
         clientePrueba.setTelefono("78787878");
         clientePrueba.setContrasena("desa123$");
+        clientePrueba.setEdad(28);
         clientePrueba.setEstado(true);
     }
 
@@ -60,7 +61,7 @@ public class sampleTest {
 
         Cliente clienteCreado = clienteService.crear(clientePrueba);
 
-        Optional<Cliente> clienteEncontrado = clienteService.obtenerPorId(clienteCreado.getId());
+        Optional<Cliente> clienteEncontrado = clienteService.obtenerPorId(clienteCreado.getClienteId());
 
         assertTrue(clienteEncontrado.isPresent());
         assertEquals(clienteCreado.getClienteId(), clienteEncontrado.get().getClienteId());
@@ -78,7 +79,8 @@ public class sampleTest {
         Cliente clienteActualizado = clienteService.actualizar(clienteCreado.getClienteId(), clienteCreado);
 
         assertEquals("Juan Carlos Lopez", clienteActualizado.getNombre());
-        assertEquals("123A", clienteActualizado.getContrasena());
+        assertNotNull(clienteActualizado.getContrasena());
+        assertTrue(clienteActualizado.getContrasena().startsWith("$2a$") || clienteActualizado.getContrasena().startsWith("$2b$"));
 
     }
 
